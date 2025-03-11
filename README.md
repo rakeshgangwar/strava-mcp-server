@@ -42,7 +42,7 @@ node get-strava-token.js YOUR_CLIENT_ID YOUR_CLIENT_SECRET
 ### 3. Configure the MCP Settings
 
 1. Update the MCP settings file with your Strava API credentials:
-   - Location: `/Users/rakeshgangwar/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
+   - Location: `/Users/{USERNAME}/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
    - Add your Client ID, Client Secret, and Refresh Token to the `env` section of the `strava` server configuration:
      ```json
      "strava": {
@@ -65,7 +65,7 @@ node get-strava-token.js YOUR_CLIENT_ID YOUR_CLIENT_SECRET
 The server will be automatically started by Claude when needed. If you want to test it manually:
 
 ```bash
-cd /Users/rakeshgangwar/Documents/Cline/MCP/strava-mcp-server
+cd /Users/{USERNAME}/Documents/Cline/MCP/strava-mcp-server
 npm run build
 npm start
 ```

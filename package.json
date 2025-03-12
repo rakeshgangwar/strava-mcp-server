@@ -1,23 +1,29 @@
 {
-  "name": "strava-mcp-server",
+  "name": "strava-running-dashboard",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "build": "tsc && chmod +x dist/index.js",
-    "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "fetch-data": "node fetch-all-activities.js",
+    "check-streak": "node check-streak.js",
+    "get-token": "node get-strava-token.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "MCP server for Strava API integration",
+  "keywords": [
+    "strava",
+    "running",
+    "dashboard",
+    "fitness",
+    "tracker",
+    "streak"
+  ],
+  "author": "Rudi de Bruyn",
+  "license": "MIT",
+  "description": "A modern dashboard to visualize running statistics from Strava",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.6.1",
-    "@types/node": "^22.13.10",
     "axios": "^1.8.2",
+    "cors": "^2.8.5",
     "express": "^5.0.1",
-    "open": "^10.1.0",
-    "typescript": "^5.8.2"
+    "open": "^10.1.0"
   }
 }

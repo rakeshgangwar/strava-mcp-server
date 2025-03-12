@@ -1,91 +1,90 @@
-# Strava MCP Server
+# Strava Running Dashboard
 
-This is a Model Context Protocol (MCP) server for the Strava API, allowing Claude to interact with your Strava data.
+A modern dashboard to visualize running statistics from Strava, featuring a perfect streak tracker and top runs display.
 
 ## Features
 
-The Strava MCP server provides the following tools:
+- **Real-time Strava Data**: Fetches all running activities (including trail runs) from Strava API
+- **Comprehensive Statistics**: Shows total runs, distance, elevation gain, and days tracked
+- **Perfect Streak Tracking**: Tracks consecutive days of running without missing a day
+- **Top Runs Display**: Showcases your 5 longest runs by distance and duration
+- **Responsive Design**: Modern, mobile-friendly interface with a blue theme
+- **One-Click Refresh**: Update your dashboard with fresh Strava data with a single click
 
-- `get_athlete_activities`: Get activities for the authenticated athlete
-- `get_activity`: Get details of a specific activity
-- `create_activity`: Create a manual activity
-- `get_activity_kudoers`: Get the athletes who kudoed an activity
-- `get_activity_laps`: Get the laps of an activity
+## Setup
 
-## Setup Instructions
+### Prerequisites
 
-### 1. Create a Strava API Application
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+- Strava API credentials (Client ID, Client Secret, and Refresh Token)
 
-1. Go to [Strava API Settings](https://www.strava.com/settings/api)
-2. Create a new application:
-   - Application Name: Claude Strava Integration (or any name you prefer)
-   - Website: http://localhost
-   - Authorization Callback Domain: localhost
-3. After creating the application, note your **Client ID** and **Client Secret**
+### Installation
 
-### 2. Obtain a Refresh Token
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/strava-running-dashboard.git
+   cd strava-running-dashboard
+   ```
 
-1. Install the required dependencies:
-   ```bash
-   cd /Users/{USERNAME}/Documents/Cline/MCP/strava-mcp-server
+2. Install dependencies:
+   ```
    npm install
    ```
 
-2. Run the get-strava-token.js script with your Client ID and Client Secret:
-```bash
-node get-strava-token.js YOUR_CLIENT_ID YOUR_CLIENT_SECRET
-```
-
-3. The script will open a browser window asking you to authorize the application to access your Strava data.
-4. After authorization, the script will display your refresh token in the terminal.
-
-### 3. Configure the MCP Settings
-
-1. Update the MCP settings file with your Strava API credentials:
-   - Location: `/Users/{USERNAME}/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
-   - Add your Client ID, Client Secret, and Refresh Token to the `env` section of the `strava` server configuration:
-     ```json
-     "strava": {
-       "command": "node",
-       "args": [
-         "/Users/{USERNAME}/Documents/Cline/MCP/strava-mcp-server/dist/index.js"
-       ],
-       "env": {
-         "STRAVA_CLIENT_ID": "YOUR_CLIENT_ID",
-         "STRAVA_CLIENT_SECRET": "YOUR_CLIENT_SECRET",
-         "STRAVA_REFRESH_TOKEN": "YOUR_REFRESH_TOKEN"
-       },
-       "disabled": false,
-       "autoApprove": []
-     }
+3. Configure your Strava API credentials:
+   - Edit `fetch-all-activities.js` and `get-activities.js` to include your Strava API credentials:
+     ```javascript
+     const STRAVA_CLIENT_ID = 'your-client-id';
+     const STRAVA_CLIENT_SECRET = 'your-client-secret';
+     const STRAVA_REFRESH_TOKEN = 'your-refresh-token';
      ```
 
-### 4. Build and Start the Server
+4. Start the server:
+   ```
+   node server.js
+   ```
 
-The server will be automatically started by Claude when needed. If you want to test it manually:
+5. Access the dashboard:
+   Open your browser and navigate to `http://localhost:8000/dashboard.html`
 
-```bash
-cd /Users/{USERNAME}/Documents/Cline/MCP/strava-mcp-server
-npm run build
-npm start
-```
+### Obtaining Strava API Credentials
 
-## Usage Examples
+1. Go to [Strava API Settings](https://www.strava.com/settings/api)
+2. Create an application to get your Client ID and Client Secret
+3. Set the Authorization Callback Domain to: `localhost`
+4. Run the token generator script:
+   ```
+   node get-strava-token.js YOUR_CLIENT_ID YOUR_CLIENT_SECRET
+   ```
+5. Follow the prompts to authorize the application and get your refresh token
 
-Once the Strava MCP server is configured, you can ask Claude to interact with your Strava data:
+## Usage
 
-- "Show me my recent Strava activities"
-- "Get details about my latest Strava run"
-- "Create a new manual activity on Strava"
-- "Who kudoed my latest Strava ride?"
-- "Show me the laps from my last track workout"
+- **View Statistics**: Open the dashboard to see your running statistics since December 21, 2019
+- **Refresh Data**: Click the refresh button in the top-right corner to fetch the latest data from Strava
+- **Check Streak**: The dashboard shows your current running streak and days with runs
 
-## Troubleshooting
+## Files
 
-- **Authentication Errors**: If you encounter authentication errors, your refresh token may have expired. Run the get-strava-token.js script again to obtain a new refresh token.
-- **Server Not Starting**: Make sure the path to the server in the MCP settings file is correct and that you've built the server with `npm run build`.
-- **API Rate Limits**: The Strava API has rate limits. If you encounter rate limit errors, wait a few minutes before trying again.
+- `server.js` - Express server with API endpoints for refreshing Strava data
+- `fetch-all-activities.js` - Script to fetch all running activities from Strava
+- `dashboard.html` - The main dashboard interface
+- `get-activities.js` - Script to fetch recent Strava activities
+- `check-streak.js` - Script to analyze running streak data
+- `get-strava-token.js` - Helper script to obtain Strava API tokens
+
+## Security Note
+
+For production deployment, it's recommended to:
+1. Use environment variables for API credentials instead of hardcoding them
+2. Implement proper authentication for the dashboard
+3. Set up HTTPS for secure communication
 
 ## License
 
-This project is licensed under the MIT License.
+MIT
+
+## Author
+
+Created by Rudi de Bruyn

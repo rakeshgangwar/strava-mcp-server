@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savage Running Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #1a73e8;
+            --secondary-blue: #4285f4;
+            --light-blue: #8ab4f8;
+            --dark-blue: #0d47a1;
+            --accent-blue: #039be5;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .header h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card .icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+        }
+        
+        .stat-card .stat-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .stat-subtitle {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        
+        .highlight-card {
+            background: linear-gradient(135deg, var(--secondary-blue), var(--accent-blue));
+            color: white;
+        }
+        
+        .highlight-card .icon,
+        .highlight-card .stat-title,
+        .highlight-card .stat-value,
+        .highlight-card .stat-subtitle {
+            color: white;
+        }
+        
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+        }
+        
+        .loading i {
+            margin-right: 1rem;
+            animation: spin 1s infinite linear;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        #lastUpdated {
+            font-style: italic;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .refresh-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .refresh-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .refresh-btn i {
+            transition: transform 0.5s ease;
+        }
+        
+        .refresh-btn.refreshing i {
+            animation: spin 1s infinite linear;
+        }
+        
+        .top-runs-section {
+            margin-top: 2rem;
+        }
+        
+        .top-runs-section h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark-blue);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light-blue);
+        }
+        
+        .run-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+            border-left: 4px solid var(--primary-blue);
+        }
+        
+        .run-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .run-item .run-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            color: var(--dark-blue);
+        }
+        
+        .run-item .run-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .run-item .run-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .run-item .run-detail i {
+            color: var(--primary-blue);
+        }
+        
+        .run-item.top-1 {
+            border-left-color: gold;
+            background-color: rgba(255, 215, 0, 0.05);
+        }
+        
+        .run-item.top-2 {
+            border-left-color: silver;
+            background-color: rgba(192, 192, 192, 0.05);
+        }
+        
+        .run-item.top-3 {
+            border-left-color: #cd7f32;
+            background-color: rgba(205, 127, 50, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        <i class="fas fa-running fa-spin"></i> Loading your running data...
+    </div>
+    
+    <div id="dashboard" class="dashboard-container" style="display: none;">
+        <div class="header">
+            <h1>Savage Running Dashboard</h1>
+            <p>Your running journey since December 21, 2019</p>
+            <small id="lastUpdated"></small>
+            
+            <button id="refreshBtn" class="refresh-btn">
+                <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-title">DAYS WITH RUNS</div>
+                    <div id="daysTracked" class="stat-value">-</div>
+                    <div class="stat-subtitle">Since December 21, 2019</div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="icon">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <div class="stat-title">TOTAL RUNS</div>
+                    <div id="totalRuns" class="stat-value">-</div>
+                    <div class="stat-subtitle">Including trail runs</div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card highlight-card">
+                    <div class="icon">
+                        <i class="fas fa-road"></i>
+                    </div>
+                    <div class="stat-title">TOTAL DISTANCE</div>
+                    <div id="totalDistance" class="stat-value">-</div>
+                    <div class="stat-subtitle">Kilometers covered</div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="icon">
+                        <i class="fas fa-mountain"></i>
+                    </div>
+                    <div class="stat-title">ELEVATION GAIN</div>
+                    <div id="totalElevation" class="stat-value">-</div>
+                    <div class="stat-subtitle">Total meters climbed</div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-title">LONGEST RUN</div>
+                    <div id="longestDistance" class="stat-value">-</div>
+                    <div id="longestDistanceDate" class="stat-subtitle">-</div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="icon">
+                        <i class="fas fa-stopwatch"></i>
+                    </div>
+                    <div class="stat-title">LONGEST DURATION</div>
+                    <div id="longestDuration" class="stat-value">-</div>
+                    <div id="longestDurationDate" class="stat-subtitle">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="top-runs-section">
+            <h2>Top 5 Longest Runs by Distance</h2>
+            <div id="topDistanceRuns"></div>
+        </div>
+        
+        <div class="top-runs-section">
+            <h2>Top 5 Longest Runs by Duration</h2>
+            <div id="topDurationRuns"></div>
+        </div>
+        
+        <div class="footer">
+            <p>Data powered by Strava API | Dashboard created for Savage</p>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            loadDashboardData();
+            
+            // Set up refresh button
+            document.getElementById('refreshBtn').addEventListener('click', function() {
+                refreshData();
+            });
+        });
+        
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('run-activities.json');
+                const activities = await response.json();
+                
+                // Try to load days data
+                let daysData = { totalDays: 0 };
+                try {
+                    const daysResponse = await fetch('run-days.json');
+                    daysData = await daysResponse.json();
+                } catch (error) {
+                    console.warn('Could not load days data, calculating from activities');
+                    // Calculate days if file not found
+                    const runsByDay = {};
+                    activities.forEach(activity => {
+                        const date = activity.start_date_local.split('T')[0];
+                        if (!runsByDay[date]) {
+                            runsByDay[date] = true;
+                        }
+                    });
+                    daysData.totalDays = Object.keys(runsByDay).length;
+                }
+                
+                // Calculate statistics
+                const stats = calculateStats(activities, daysData.totalDays);
+                
+                // Update the dashboard
+                updateDashboard(stats);
+                
+                // Hide loading, show dashboard
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                        <p>Error loading data. Please try again.</p>
+                        <p class="text-muted">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function refreshData() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.classList.add('refreshing');
+            refreshBtn.disabled = true;
+            
+            try {
+                // Show loading message
+                document.getElementById('dashboard').style.display = 'none';
+                document.getElementById('loading').style.display = 'flex';
+                document.getElementById('loading').innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing your running data from Strava...';
+                
+                // Call the MCP server to refresh Strava data
+                const refreshResponse = await fetch('http://localhost:8000/api/refresh-strava');
+                const refreshResult = await refreshResponse.json();
+                
+                if (!refreshResult.success) {
+                    throw new Error(refreshResult.error || 'Failed to refresh Strava data');
+                }
+                
+                // Fetch new data from the updated JSON files
+                const response = await fetch('run-activities.json?t=' + new Date().getTime(), { cache: 'no-store' });
+                const activities = await response.json();
+                
+                // Try to load days data
+                let daysData = { totalDays: 0 };
+                try {
+                    const daysResponse = await fetch('run-days.json?t=' + new Date().getTime(), { cache: 'no-store' });
+                    daysData = await daysResponse.json();
+                } catch (error) {
+                    console.warn('Could not load days data, calculating from activities');
+                    // Calculate days if file not found
+                    const runsByDay = {};
+                    activities.forEach(activity => {
+                        const date = activity.start_date_local.split('T')[0];
+                        if (!runsByDay[date]) {
+                            runsByDay[date] = true;
+                        }
+                    });
+                    daysData.totalDays = Object.keys(runsByDay).length;
+                }
+                
+                // Calculate statistics
+                const stats = calculateStats(activities, daysData.totalDays);
+                
+                // Update the dashboard
+                updateDashboard(stats);
+                
+                // Hide loading, show dashboard
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                        <p>Error refreshing data. Please try again.</p>
+                        <p class="text-muted">${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                refreshBtn.classList.remove('refreshing');
+                refreshBtn.disabled = false;
+            }
+        }
+        
+        function calculateStats(activities, totalDays) {
+            // Start date: December 21, 2019
+            const startDate = new Date('2019-12-21T00:00:00Z');
+            const today = new Date();
+            const daysTracked = totalDays || Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            
+            // Total runs
+            const totalRuns = activities.length;
+            
+            // Total distance in kilometers
+            const totalDistance = activities.reduce((sum, activity) => sum + activity.distance, 0) / 1000;
+            
+            // Total elevation gain in meters
+            const totalElevation = activities.reduce((sum, activity) => sum + activity.total_elevation_gain, 0);
+            
+            // Longest run by distance
+            const longestDistanceActivity = activities.reduce((longest, activity) => 
+                activity.distance > longest.distance ? activity : longest, activities[0]);
+            
+            // Longest run by duration
+            const longestDurationActivity = activities.reduce((longest, activity) => 
+                activity.moving_time > longest.moving_time ? activity : longest, activities[0]);
+            
+            // Top 5 runs by distance
+            const topDistanceRuns = [...activities]
+                .sort((a, b) => b.distance - a.distance)
+                .slice(0, 5);
+            
+            // Top 5 runs by duration
+            const topDurationRuns = [...activities]
+                .sort((a, b) => b.moving_time - a.moving_time)
+                .slice(0, 5);
+            
+            return {
+                daysTracked,
+                totalRuns,
+                totalDistance,
+                totalElevation,
+                longestDistanceActivity,
+                longestDurationActivity,
+                topDistanceRuns,
+                topDurationRuns
+            };
+        }
+        
+        function updateDashboard(stats) {
+            // Update stats
+            document.getElementById('daysTracked').textContent = stats.daysTracked.toLocaleString();
+            document.getElementById('totalRuns').textContent = stats.totalRuns.toLocaleString();
+            document.getElementById('totalDistance').textContent = stats.totalDistance.toFixed(2).toLocaleString();
+            document.getElementById('totalElevation').textContent = Math.round(stats.totalElevation).toLocaleString();
+            
+            // Longest distance
+            const longestDistanceKm = (stats.longestDistanceActivity.distance / 1000).toFixed(2);
+            document.getElementById('longestDistance').textContent = `${longestDistanceKm} km`;
+            document.getElementById('longestDistanceDate').textContent = new Date(stats.longestDistanceActivity.start_date_local).toLocaleDateString();
+            
+            // Longest duration
+            const hours = Math.floor(stats.longestDurationActivity.moving_time / 3600);
+            const minutes = Math.floor((stats.longestDurationActivity.moving_time % 3600) / 60);
+            const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+            document.getElementById('longestDuration').textContent = durationText;
+            document.getElementById('longestDurationDate').textContent = new Date(stats.longestDurationActivity.start_date_local).toLocaleDateString();
+            
+            // Last updated
+            document.getElementById('lastUpdated').textContent = `Last updated: ${new Date().toLocaleString()}`;
+            
+            // Top 5 runs by distance
+            const topDistanceHtml = stats.topDistanceRuns.map((run, index) => {
+                const distance = (run.distance / 1000).toFixed(2);
+                const date = new Date(run.start_date_local).toLocaleDateString();
+                const elevation = Math.round(run.total_elevation_gain);
+                const pace = calculatePace(run.distance, run.moving_time);
+                
+                return `
+                    <div class="run-item ${index < 3 ? 'top-' + (index + 1) : ''}">
+                        <div class="run-title">${run.name}</div>
+                        <div class="run-details">
+                            <div class="run-detail">
+                                <i class="fas fa-calendar"></i> ${date}
+                            </div>
+                            <div class="run-detail">
+                                <i class="fas fa-road"></i> ${distance} km
+                            </div>
+                            <div class="run-detail">
+                                <i class="fas fa-mountain"></i> ${elevation} m
+                            </div>
+                            <div class="run-detail">
+                                <i class="fas fa-tachometer-alt"></i> ${pace} /km
+                            </div>
+                            <div class="run-detail">
+                                <i class="fas fa-running"></i> ${run.type}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('topDistanceRuns').innerHTML = topDistanceHtml;
+            
+            // Top 5 runs by duration
+            const topDurationHtml = stats.topDurationRuns.map((run, index) => {
+                const distance = (run.distance / 1000).toFixed(2);
+                const date = new Date(run.start_date_local).toLocaleDateString();
+                const hours = Math.floor(run.moving_time / 3600);
+                const minutes = Math.floor((run.moving_time % 3600) / 60);
+                const duration = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+                const pace = calculatePace(run.distance, run.moving_time);
+                
+                return `
+                    <div class="run-item ${index < 3 ? 'top-' + (index + 1) : ''}">
+                        <div class="run-title">${run.name}</div>
+                        <div class="run-details">
+                            <div class="run-detail">
+                                <i class="fas fa-calendar"></i> ${date}
+                            </div>
+                            <div class="run-detail">
+                                <i class="fas fa-stopwatch"></i> ${duration}
+                            </div>
+                            <div class="run-detail">
+                                <i class="fas fa-road"></i> ${distance} km
+                            </div>
+                            <div class="run-detail">
+                                <i class="fas fa-tachometer-alt"></i> ${pace} /km
+                            </div>
+                            <div class="run-detail">
+                                <i class="fas fa-running"></i> ${run.type}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('topDurationRuns').innerHTML = topDurationHtml;
+        }
+        
+        function calculatePace(distanceMeters, timeSeconds) {
+            // Calculate pace in minutes per kilometer
+            const paceSeconds = timeSeconds / (distanceMeters / 1000);
+            const paceMinutes = Math.floor(paceSeconds / 60);
+            const paceRemainingSeconds = Math.floor(paceSeconds % 60);
+            
+            return `${paceMinutes}:${paceRemainingSeconds.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>

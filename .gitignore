@@ -80,3 +80,13 @@ coverage.xml
 # Project specific
 config.local.js
 config.dev.js 
+
+# Strava data files
+run-activities.json
+run-days.json
+missed-days.json
+
+# Strava credentials (should be stored in environment variables in production)
+# But keeping these files for local development
+# fetch-all-activities.js
+# get-activities.js
